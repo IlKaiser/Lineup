@@ -47,7 +47,6 @@ struct RootView: View {
         if existing.isEmpty {
             let lineup = LineupModel(name: "My Lineup")
             modelContext.insert(lineup)
-            try? modelContext.save()
             selectedLineup = lineup
         } else if selectedLineup == nil {
             selectedLineup = existing.first

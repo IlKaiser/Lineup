@@ -32,7 +32,11 @@ struct LineupsListView: View {
                 }
             }
             .onDelete { offsets in
-                offsets.map { lineups[$0] }.forEach { delete($0) }
+                let toDelete = offsets.map { lineups[$0] }
+                if let sel = selectedLineup, toDelete.contains(where: { $0 === sel }) {
+                    selectedLineup = lineups.first { l in !toDelete.contains(where: { $0 === l }) }
+                }
+                toDelete.forEach { modelContext.delete($0) }
             }
         }
         .navigationTitle("Lineups")
@@ -72,8 +76,9 @@ struct LineupsListView: View {
     }
 
     private func createLineup() {
-        guard !newLineupName.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        let lineup = LineupModel(name: newLineupName.trimmingCharacters(in: .whitespaces))
+        let name = newLineupName.trimmingCharacters(in: .whitespaces)
+        guard !name.isEmpty else { return }
+        let lineup = LineupModel(name: name)
         modelContext.insert(lineup)
         newLineupName = ""
         selectedLineup = lineup
