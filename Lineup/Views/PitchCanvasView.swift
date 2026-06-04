@@ -7,12 +7,13 @@ struct PitchCanvasView: View {
 
     var body: some View {
         GeometryReader { geo in
+            let starterColor = Color(hex: lineup.starterColorHex)
             ZStack {
                 PitchBackgroundView()
                 ForEach(lineup.starters) { position in
                     DraggableShirtView(
                         position: position,
-                        color: Color(hex: lineup.starterColorHex),
+                        color: starterColor,
                         pitchSize: geo.size,
                         onSendToBench: { sendToBench(position) }
                     )
@@ -24,9 +25,9 @@ struct PitchCanvasView: View {
 
     private func sendToBench(_ position: PlayerPosition) {
         guard let player = position.player else { return }
-        lineup.starters.removeAll { $0.id == position.id }
+        lineup.starters.removeAll { $0 === position }
         modelContext.delete(position)
-        if !lineup.substitutes.contains(where: { $0.id == player.id }) {
+        if !lineup.substitutes.contains(where: { $0 === player }) {
             lineup.substitutes.append(player)
         }
     }

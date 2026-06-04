@@ -10,10 +10,14 @@ struct DraggableShirtView: View {
     @State private var dragOffset: CGSize = .zero
 
     private var displayX: CGFloat {
-        position.normalizedX * pitchSize.width + dragOffset.width
+        let raw = position.normalizedX * pitchSize.width + dragOffset.width
+        guard pitchSize.width > 0 else { return raw }
+        return min(max(raw, pitchSize.width * 0.03), pitchSize.width * 0.97)
     }
     private var displayY: CGFloat {
-        position.normalizedY * pitchSize.height + dragOffset.height
+        let raw = position.normalizedY * pitchSize.height + dragOffset.height
+        guard pitchSize.height > 0 else { return raw }
+        return min(max(raw, pitchSize.height * 0.02), pitchSize.height * 0.98)
     }
 
     var body: some View {
@@ -26,6 +30,10 @@ struct DraggableShirtView: View {
                             dragOffset = value.translation
                         }
                         .onEnded { value in
+                            guard pitchSize.width > 0, pitchSize.height > 0 else {
+                                dragOffset = .zero
+                                return
+                            }
                             let rawX = position.normalizedX * pitchSize.width + value.translation.width
                             let rawY = position.normalizedY * pitchSize.height + value.translation.height
                             position.normalizedX = min(max(rawX / pitchSize.width, 0.03), 0.97)
