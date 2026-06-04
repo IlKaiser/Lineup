@@ -38,9 +38,16 @@ struct BenchStripView: View {
                     ForEach(0..<row.count, id: \.self){ line in
                         HStack(spacing: 14) {
                             Spacer()
-                            ForEach(row[line]) { player in
+                            ForEach(Array(row[line].enumerated()), id: \.element.id) { offset, player in
+                                let flatIndex = line * 6 + offset
                                 ShirtView(name: player.name, number: player.number,
                                           color: player.playerRole.color, size: 38)
+                                .draggable(String(flatIndex))
+                                .dropDestination(for: String.self) { items, _ in
+                                    guard let first = items.first, let from = Int(first) else { return false }
+                                    moveSubstitute(from: from, to: flatIndex)
+                                    return true
+                                }
                                 .contextMenu {
                                     Button("Move to Starting 11") {
                                         moveToStarting(player)
@@ -92,6 +99,16 @@ struct BenchStripView: View {
 
     private func moveToStarting(_ player: Player) {
         lineup.addStarter(player)
+    }
+
+    /// Reorders a substitute within the bench. `from`/`to` are flat indices into
+    /// `lineup.substitutes`. The new order persists via the SwiftData relationship array.
+    private func moveSubstitute(from: Int, to: Int) {
+        guard from != to, lineup.substitutes.indices.contains(from) else { return }
+        let player = lineup.substitutes.remove(at: from)
+        let dest = to > from ? to - 1 : to
+        let clamped = min(max(dest, 0), lineup.substitutes.count)
+        lineup.substitutes.insert(player, at: clamped)
     }
 }
 
