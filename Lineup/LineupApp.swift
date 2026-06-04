@@ -25,12 +25,32 @@ struct LineupApp: App {
 
 struct RootView: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(\.modelContext) private var modelContext
+    @State private var selectedLineup: LineupModel?
+    @State private var columnVisibility = NavigationSplitViewVisibility.all
 
     var body: some View {
-        if sizeClass == .regular {
-            IPadRootView()
-        } else {
-            IPhoneRootView()
+        Group {
+            if sizeClass == .regular {
+                IPadRootView(selectedLineup: $selectedLineup, columnVisibility: $columnVisibility)
+            } else {
+                IPhoneRootView(selectedLineup: $selectedLineup)
+            }
+        }
+        .task { ensureDefaultLineup() }
+    }
+
+    private func ensureDefaultLineup() {
+        var descriptor = FetchDescriptor<LineupModel>()
+        descriptor.fetchLimit = 1
+        let existing = (try? modelContext.fetch(descriptor)) ?? []
+        if existing.isEmpty {
+            let lineup = LineupModel(name: "My Lineup")
+            modelContext.insert(lineup)
+            try? modelContext.save()
+            selectedLineup = lineup
+        } else if selectedLineup == nil {
+            selectedLineup = existing.first
         }
     }
 }
@@ -38,9 +58,8 @@ struct RootView: View {
 // MARK: - iPhone Layout
 
 struct IPhoneRootView: View {
+    @Binding var selectedLineup: LineupModel?
     @Query(sort: \LineupModel.createdAt) private var lineups: [LineupModel]
-    @Environment(\.modelContext) private var modelContext
-    @State private var selectedLineup: LineupModel?
 
     var body: some View {
         TabView {
@@ -62,27 +81,14 @@ struct IPhoneRootView: View {
             }
             .tabItem { Label("Squad", systemImage: "person.3.fill") }
         }
-        .onAppear { ensureDefaultLineup() }
-    }
-
-    private func ensureDefaultLineup() {
-        if lineups.isEmpty {
-            let lineup = LineupModel(name: "My Lineup")
-            modelContext.insert(lineup)
-            selectedLineup = lineup
-        } else if selectedLineup == nil {
-            selectedLineup = lineups.first
-        }
     }
 }
 
 // MARK: - iPad Layout
 
 struct IPadRootView: View {
-    @Query(sort: \LineupModel.createdAt) private var lineups: [LineupModel]
-    @Environment(\.modelContext) private var modelContext
-    @State private var selectedLineup: LineupModel?
-    @State private var columnVisibility = NavigationSplitViewVisibility.all
+    @Binding var selectedLineup: LineupModel?
+    @Binding var columnVisibility: NavigationSplitViewVisibility
 
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
@@ -94,17 +100,6 @@ struct IPadRootView: View {
                 ContentUnavailableView("Select a Lineup", systemImage: "sportscourt",
                                       description: Text("Choose a lineup from the sidebar."))
             }
-        }
-        .onAppear { ensureDefaultLineup() }
-    }
-
-    private func ensureDefaultLineup() {
-        if lineups.isEmpty {
-            let lineup = LineupModel(name: "My Lineup")
-            modelContext.insert(lineup)
-            selectedLineup = lineup
-        } else if selectedLineup == nil {
-            selectedLineup = lineups.first
         }
     }
 }

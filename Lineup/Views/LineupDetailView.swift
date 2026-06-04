@@ -39,7 +39,8 @@ struct LineupDetailView: View {
     }
 
     private func exportAndShare() {
-        exportedImage = ImageExporter.export(lineup: lineup)
+        guard let image = ImageExporter.export(lineup: lineup) else { return }
+        exportedImage = image
         showingShare = true
     }
 }

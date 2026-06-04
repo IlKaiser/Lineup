@@ -25,14 +25,14 @@ struct LineupsListView: View {
                         renamingLineup = lineup
                     }
                     Button(role: .destructive) {
-                        modelContext.delete(lineup)
+                        delete(lineup)
                     } label: {
                         Label("Delete", systemImage: "trash")
                     }
                 }
             }
             .onDelete { offsets in
-                offsets.map { lineups[$0] }.forEach { modelContext.delete($0) }
+                offsets.map { lineups[$0] }.forEach { delete($0) }
             }
         }
         .navigationTitle("Lineups")
@@ -55,11 +55,20 @@ struct LineupsListView: View {
         )) {
             TextField("Lineup name", text: $renameText)
             Button("Save") {
-                renamingLineup?.name = renameText
+                let trimmed = renameText.trimmingCharacters(in: .whitespaces)
+                guard !trimmed.isEmpty else { renamingLineup = nil; return }
+                renamingLineup?.name = trimmed
                 renamingLineup = nil
             }
             Button("Cancel", role: .cancel) { renamingLineup = nil }
         }
+    }
+
+    private func delete(_ lineup: LineupModel) {
+        if selectedLineup === lineup {
+            selectedLineup = lineups.first { $0 !== lineup }
+        }
+        modelContext.delete(lineup)
     }
 
     private func createLineup() {
