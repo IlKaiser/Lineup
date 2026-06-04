@@ -1,6 +1,17 @@
 import SwiftUI
 import SwiftData
 
+
+extension Array {
+    func chunks(_ chunkSize: Int) -> [[Element]] {
+        return stride(from: 0, to: self.count, by: chunkSize).map {
+            Array(self[$0..<Swift.min($0 + chunkSize, self.count)])
+        }
+    }
+}
+
+
+
 struct BenchStripView: View {
     @Bindable var lineup: LineupModel
     @Query(sort: \Player.number) private var allPlayers: [Player]
@@ -18,42 +29,57 @@ struct BenchStripView: View {
             Text("Substitutes")
                 .font(.caption2.weight(.semibold))
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, 14)
+                .padding(.horizontal, 28)
+                .padding(.vertical, 12)
 
             let benchColor = Color(hex: lineup.benchColorHex)
+            let row:[[Player]] = lineup.substitutes.chunks(6)
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 14) {
-                    ForEach(lineup.substitutes) { player in
-                        ShirtView(name: player.name, number: player.number,
-                                  color: benchColor, size: 38)
-                            .contextMenu {
-                                Button("Move to Starting 11") {
-                                    moveToStarting(player)
-                                }
-                                .disabled(lineup.starters.count >= 11)
-                                Button(role: .destructive) {
-                                    lineup.substitutes.removeAll { $0.id == player.id }
-                                } label: {
-                                    Label("Remove from Bench", systemImage: "minus.circle")
+                VStack{
+                    ForEach(0..<row.count, id: \.self){ line in
+                        HStack(spacing: 14) {
+                            Spacer()
+                            ForEach(row[line]) { player in
+                                ShirtView(name: player.name, number: player.number,
+                                          color: benchColor, size: 38)
+                                .contextMenu {
+                                    Button("Move to Starting 11") {
+                                        moveToStarting(player)
+                                    }
+                                    .disabled(lineup.starters.count >= 11)
+                                    Button(role: .destructive) {
+                                        lineup.substitutes.removeAll { $0.id == player.id }
+                                    } label: {
+                                        Label("Remove from Bench", systemImage: "minus.circle")
+                                    }
                                 }
                             }
+                            Spacer()
+                            
+                            if line == row.count - 1{
+                          
+                                Button { showingPicker = true } label: {
+                                    Image(systemName: "plus")
+                                        
+                                        
+                                }
+                                .buttonBorderShape(.circle)
+                                .buttonStyle(.glassProminent)
+                                .tint(.blue)
+                            }
+                            
+                        }.padding(.horizontal, 4)
+                        .padding(.vertical, 2)
+                        
                     }
-                    Button { showingPicker = true } label: {
-                        VStack(spacing: 3) {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.system(size: 30))
-                                .foregroundStyle(.white.opacity(0.65))
-                            Text("Add")
-                                .font(.system(size: 9))
-                                .foregroundStyle(.white.opacity(0.65))
-                        }
-                    }
+                    
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
+               
+                
             }
+            
         }
-        .padding(.vertical, 6)
+        
         .adaptiveGlass()
         .sheet(isPresented: $showingPicker) {
             PlayerPickerView(players: pickablePlayers) { player in

@@ -33,8 +33,9 @@ struct ShirtView: View {
     let number: Int
     let color: Color
     var size: CGFloat = 52
-
+   
     var body: some View {
+        
         VStack(spacing: 2) {
             ZStack {
                 ShirtShape()
@@ -45,16 +46,23 @@ struct ShirtView: View {
                     .font(.system(size: size * 0.30, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
                     .offset(y: size * 0.08)
+                
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(name.isEmpty ? "Number \(number)" : "\(name), number \(number)")
+            
             if !name.isEmpty {
                 Text(name)
-                    .font(.system(size: max(size * 0.17, 8), weight: .semibold))
-                    .foregroundStyle(.white)
+                    .font(.system(size: max(size * 0.27, 8), weight: .bold))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.white)
                     .lineLimit(1)
                     .fixedSize()
                     .shadow(color: .black.opacity(0.6), radius: 1)
+                    .blendMode(.difference)
+
+                
+                
             }
         }
     }

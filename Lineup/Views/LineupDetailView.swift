@@ -5,11 +5,10 @@ struct LineupDetailView: View {
     @Bindable var lineup: LineupModel
     @Query(sort: \Player.number) private var allPlayers: [Player]
     @State private var showingFormation = false
-    @State private var showingShare = false
     @State private var showingAddPlayer = false
     @State private var showingRename = false
     @State private var renameText = ""
-    @State private var exportedImage: UIImage?
+    @State private var shareItem: ShareImage?
 
     /// Players not currently in the starting XI (may be on the bench or unassigned).
     private var availableForStarting: [Player] {
@@ -18,12 +17,21 @@ struct LineupDetailView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 8) {
+            Text(lineup.name)
+                .font(.headline)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 4)
+
             PitchCanvasView(lineup: lineup)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .padding(.horizontal, 12)
+
             BenchStripView(lineup: lineup)
         }
-        .navigationTitle(lineup.name)
+        .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbar {
@@ -64,10 +72,8 @@ struct LineupDetailView: View {
             }
             .presentationDetents([.medium])
         }
-        .sheet(isPresented: $showingShare) {
-            if let image = exportedImage {
-                ShareSheet(image: image)
-            }
+        .sheet(item: $shareItem) { item in
+            ShareSheet(image: item.image)
         }
         .alert("Rename Lineup", isPresented: $showingRename) {
             TextField("Lineup name", text: $renameText)
@@ -82,9 +88,13 @@ struct LineupDetailView: View {
 
     private func exportAndShare() {
         guard let image = ImageExporter.export(lineup: lineup) else { return }
-        exportedImage = image
-        showingShare = true
+        shareItem = ShareImage(image: image)
     }
+}
+
+struct ShareImage: Identifiable {
+    let id = UUID()
+    let image: UIImage
 }
 
 struct ShareSheet: UIViewControllerRepresentable {
