@@ -1,5 +1,3 @@
-import CoreGraphics
-
 struct FormationPosition {
     let x: Double
     let y: Double
@@ -79,6 +77,6 @@ enum Formations {
     ]
 
     static func positions(for formation: String) -> [FormationPosition] {
-        return all[formation] ?? all["4-3-3"]!
+        return all[formation] ?? all["4-3-3"] ?? []
     }
 }
