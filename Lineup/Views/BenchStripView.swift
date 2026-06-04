@@ -53,7 +53,7 @@ struct BenchStripView: View {
             }
         }
         .padding(.vertical, 6)
-        .background(.ultraThinMaterial)
+        .adaptiveGlass()
         .sheet(isPresented: $showingPicker) {
             PlayerPickerView(players: pickablePlayers) { player in
                 lineup.substitutes.append(player)
