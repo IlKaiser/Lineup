@@ -39,19 +39,21 @@ struct ShirtView: View {
             ZStack {
                 ShirtShape()
                     .fill(color)
-                    .frame(width: size, height: size)
-                ShirtShape()
-                    .stroke(Color.white.opacity(0.9), lineWidth: 1.5)
+                    .overlay(ShirtShape().stroke(Color.white.opacity(0.9), lineWidth: 1.5))
                     .frame(width: size, height: size)
                 Text("\(number)")
                     .font(.system(size: size * 0.30, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
                     .offset(y: size * 0.08)
             }
-            Text(name.isEmpty ? "" : String(name.prefix(10)))
-                .font(.system(size: max(size * 0.17, 8), weight: .semibold))
-                .foregroundStyle(.white)
-                .shadow(color: .black.opacity(0.6), radius: 1)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(name.isEmpty ? "Number \(number)" : "\(name), number \(number)")
+            if !name.isEmpty {
+                Text(String(name.prefix(10)))
+                    .font(.system(size: max(size * 0.17, 8), weight: .semibold))
+                    .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.6), radius: 1)
+            }
         }
     }
 }
