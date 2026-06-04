@@ -23,10 +23,11 @@ struct SquadView: View {
                     ))
                 }
                 Section("Players (\(players.count))") {
+                    let starterColor = Color(hex: lineup.starterColorHex)
                     ForEach(players) { player in
                         HStack(spacing: 12) {
                             ShirtView(name: "", number: player.number,
-                                      color: Color(hex: lineup.starterColorHex), size: 30)
+                                      color: starterColor, size: 30)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(player.name).font(.body)
                                 Text("#\(player.number)").font(.caption).foregroundStyle(.secondary)

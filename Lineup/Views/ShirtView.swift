@@ -49,9 +49,11 @@ struct ShirtView: View {
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(name.isEmpty ? "Number \(number)" : "\(name), number \(number)")
             if !name.isEmpty {
-                Text(String(name.prefix(10)))
+                Text(name)
                     .font(.system(size: max(size * 0.17, 8), weight: .semibold))
                     .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .fixedSize()
                     .shadow(color: .black.opacity(0.6), radius: 1)
             }
         }

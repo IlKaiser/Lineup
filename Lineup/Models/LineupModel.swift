@@ -23,4 +23,15 @@ final class LineupModel {
         self.starters = []
         self.substitutes = []
     }
+
+    /// Places a player into the next open formation slot of the starting XI.
+    /// Removes the player from the bench first. No-op if the XI is already full.
+    func addStarter(_ player: Player) {
+        guard starters.count < 11 else { return }
+        substitutes.removeAll { $0 === player }
+        let slots = Formations.positions(for: formation)
+        let index = starters.count
+        let slot = index < slots.count ? slots[index] : FormationPosition(x: 0.50, y: 0.50)
+        starters.append(PlayerPosition(player: player, normalizedX: slot.x, normalizedY: slot.y))
+    }
 }

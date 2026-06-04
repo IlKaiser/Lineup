@@ -20,11 +20,12 @@ struct BenchStripView: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 14)
 
+            let benchColor = Color(hex: lineup.benchColorHex)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 14) {
                     ForEach(lineup.substitutes) { player in
                         ShirtView(name: player.name, number: player.number,
-                                  color: Color(hex: lineup.benchColorHex), size: 38)
+                                  color: benchColor, size: 38)
                             .contextMenu {
                                 Button("Move to Starting 11") {
                                     moveToStarting(player)
@@ -63,18 +64,13 @@ struct BenchStripView: View {
     }
 
     private func moveToStarting(_ player: Player) {
-        guard lineup.starters.count < 11 else { return }
-        lineup.substitutes.removeAll { $0 === player }
-        let slots = Formations.positions(for: lineup.formation)
-        let idx = lineup.starters.count
-        let slot = idx < slots.count ? slots[idx] : FormationPosition(x: 0.50, y: 0.50)
-        let pos = PlayerPosition(player: player, normalizedX: slot.x, normalizedY: slot.y)
-        lineup.starters.append(pos)
+        lineup.addStarter(player)
     }
 }
 
 struct PlayerPickerView: View {
     let players: [Player]
+    var title: String = "Add to Bench"
     let onSelect: (Player) -> Void
     @Environment(\.dismiss) private var dismiss
 
@@ -104,7 +100,7 @@ struct PlayerPickerView: View {
                     }
                 }
             }
-            .navigationTitle("Add to Bench")
+            .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
