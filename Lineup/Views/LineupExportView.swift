@@ -9,7 +9,6 @@ struct LineupExportView: View {
     private let pitchHeight: CGFloat = 520
 
     var body: some View {
-        let benchColor = Color(hex: lineup.benchColorHex)
         let subRows = lineup.substitutes.chunks(6)
 
         VStack(spacing: 16) {
@@ -32,7 +31,7 @@ struct LineupExportView: View {
                         HStack(spacing: 16) {
                             ForEach(subRows[rowIndex]) { player in
                                 ShirtView(name: player.name, number: player.number,
-                                          color: benchColor, size: 40)
+                                          color: player.playerRole.color, size: 40)
                             }
                         }
                     }

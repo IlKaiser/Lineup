@@ -87,8 +87,12 @@ struct LineupDetailView: View {
     }
 
     private func exportAndShare() {
-        guard let image = ImageExporter.export(lineup: lineup) else { return }
-        shareItem = ShareImage(image: image)
+        // Defer the (main-actor) render one runloop tick so the menu can dismiss
+        // smoothly before the synchronous rasterization runs.
+        DispatchQueue.main.async {
+            guard let image = ImageExporter.export(lineup: lineup) else { return }
+            shareItem = ShareImage(image: image)
+        }
     }
 }
 

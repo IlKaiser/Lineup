@@ -12,6 +12,7 @@ struct PlayerEditView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var name = ""
     @State private var numberText = ""
+    @State private var role: PlayerRole = .centrocampista
 
     private var isValid: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty &&
@@ -25,6 +26,15 @@ struct PlayerEditView: View {
                     TextField("Name", text: $name)
                     TextField("Number (1–99)", text: $numberText)
                         .keyboardType(.numberPad)
+                    Picker("Role", selection: $role) {
+                        ForEach(PlayerRole.allCases) { r in
+                            HStack {
+                                Circle().fill(r.color).frame(width: 12, height: 12)
+                                Text(r.rawValue)
+                            }
+                            .tag(r)
+                        }
+                    }
                 }
             }
             .navigationTitle(mode.title)
@@ -41,6 +51,7 @@ struct PlayerEditView: View {
                 if case .edit(let player) = mode {
                     name = player.name
                     numberText = "\(player.number)"
+                    role = player.playerRole
                 }
             }
         }
@@ -51,10 +62,11 @@ struct PlayerEditView: View {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
         switch mode {
         case .add:
-            modelContext.insert(Player(name: trimmed, number: number))
+            modelContext.insert(Player(name: trimmed, number: number, role: role))
         case .edit(let player):
             player.name = trimmed
             player.number = number
+            player.playerRole = role
         }
         dismiss()
     }

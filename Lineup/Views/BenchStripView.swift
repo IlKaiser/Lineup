@@ -32,7 +32,6 @@ struct BenchStripView: View {
                 .padding(.horizontal, 28)
                 .padding(.vertical, 12)
 
-            let benchColor = Color(hex: lineup.benchColorHex)
             let row:[[Player]] = lineup.substitutes.chunks(6)
             ScrollView(.horizontal, showsIndicators: false) {
                 VStack{
@@ -41,7 +40,7 @@ struct BenchStripView: View {
                             Spacer()
                             ForEach(row[line]) { player in
                                 ShirtView(name: player.name, number: player.number,
-                                          color: benchColor, size: 38)
+                                          color: player.playerRole.color, size: 38)
                                 .contextMenu {
                                     Button("Move to Starting 11") {
                                         moveToStarting(player)
