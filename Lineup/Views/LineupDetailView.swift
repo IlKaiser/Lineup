@@ -73,7 +73,7 @@ struct LineupDetailView: View {
             .presentationDetents([.medium])
         }
         .sheet(item: $shareItem) { item in
-            ShareSheet(image: item.image)
+            ShareSheet(image: item.image, title: item.title)
         }
         .alert("Rename Lineup", isPresented: $showingRename) {
             TextField("Lineup name", text: $renameText)
@@ -91,7 +91,7 @@ struct LineupDetailView: View {
         // smoothly before the synchronous rasterization runs.
         DispatchQueue.main.async {
             guard let image = ImageExporter.export(lineup: lineup) else { return }
-            shareItem = ShareImage(image: image)
+            shareItem = ShareImage(image: image, title: lineup.name)
         }
     }
 }
@@ -99,13 +99,16 @@ struct LineupDetailView: View {
 struct ShareImage: Identifiable {
     let id = UUID()
     let image: UIImage
+    let title: String
 }
 
 struct ShareSheet: UIViewControllerRepresentable {
     let image: UIImage
+    let title: String
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: [image], applicationActivities: nil)
+        let source = ShareImageSource(image: image, title: title)
+        return UIActivityViewController(activityItems: [source], applicationActivities: nil)
     }
     func updateUIViewController(_ vc: UIActivityViewController, context: Context) {}
 }
