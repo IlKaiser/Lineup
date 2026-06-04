@@ -66,6 +66,7 @@ struct IPhoneRootView: View {
                 LineupsListView(selectedLineup: $selectedLineup)
                     .navigationDestination(for: LineupModel.self) { lineup in
                         LineupDetailView(lineup: lineup)
+                            .onAppear { selectedLineup = lineup }
                     }
             }
             .tabItem { Label("Lineups", systemImage: "sportscourt.fill") }

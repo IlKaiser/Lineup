@@ -4,6 +4,7 @@ import SwiftData
 struct LineupsListView: View {
     @Query(sort: \LineupModel.createdAt) private var lineups: [LineupModel]
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var showingNewLineup = false
     @State private var newLineupName = ""
     @State private var renamingLineup: LineupModel?
@@ -11,32 +12,13 @@ struct LineupsListView: View {
     @Binding var selectedLineup: LineupModel?
 
     var body: some View {
-        List(selection: $selectedLineup) {
-            ForEach(lineups) { lineup in
-                NavigationLink(value: lineup) {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(lineup.name).font(.headline)
-                        Text(lineup.formation).font(.caption).foregroundStyle(.secondary)
-                    }
-                }
-                .contextMenu {
-                    Button("Rename") {
-                        renameText = lineup.name
-                        renamingLineup = lineup
-                    }
-                    Button(role: .destructive) {
-                        delete(lineup)
-                    } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
-                }
-            }
-            .onDelete { offsets in
-                let toDelete = offsets.map { lineups[$0] }
-                if let sel = selectedLineup, toDelete.contains(where: { $0 === sel }) {
-                    selectedLineup = lineups.first { l in !toDelete.contains(where: { $0 === l }) }
-                }
-                toDelete.forEach { modelContext.delete($0) }
+        // List(selection:) only on iPad: NavigationSplitView drives detail via selection.
+        // On iPhone it intercepts taps and prevents NavigationLink(value:) from navigating.
+        Group {
+            if sizeClass == .regular {
+                List(selection: $selectedLineup) { rows }
+            } else {
+                List { rows }
             }
         }
         .navigationTitle("Lineups")
@@ -65,6 +47,36 @@ struct LineupsListView: View {
                 renamingLineup = nil
             }
             Button("Cancel", role: .cancel) { renamingLineup = nil }
+        }
+    }
+
+    @ViewBuilder
+    private var rows: some View {
+        ForEach(lineups) { lineup in
+            NavigationLink(value: lineup) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(lineup.name).font(.headline)
+                    Text(lineup.formation).font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            .contextMenu {
+                Button("Rename") {
+                    renameText = lineup.name
+                    renamingLineup = lineup
+                }
+                Button(role: .destructive) {
+                    delete(lineup)
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+        }
+        .onDelete { offsets in
+            let toDelete = offsets.map { lineups[$0] }
+            if let sel = selectedLineup, toDelete.contains(where: { $0 === sel }) {
+                selectedLineup = lineups.first { l in !toDelete.contains(where: { $0 === l }) }
+            }
+            toDelete.forEach { modelContext.delete($0) }
         }
     }
 
