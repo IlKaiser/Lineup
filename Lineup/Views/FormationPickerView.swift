@@ -18,25 +18,19 @@ struct FormationPickerView: View {
                     spacing: 10
                 ) {
                     ForEach(formationNames, id: \.self) { name in
+                        let isActive = lineup.formation == name
                         Button { applyFormation(name) } label: {
                             Text(name)
                                 .font(.system(size: 15, weight: .semibold))
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
-                                .background(
-                                    lineup.formation == name
-                                        ? Color.blue.opacity(0.20)
-                                        : Color(uiColor: .secondarySystemFill)
-                                )
+                                .background(isActive ? Color.blue.opacity(0.20) : Color(uiColor: .secondarySystemFill))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
-                                        .stroke(
-                                            lineup.formation == name ? Color.blue : Color.clear,
-                                            lineWidth: 1.5
-                                        )
+                                        .stroke(isActive ? Color.blue : Color.clear, lineWidth: 1.5)
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                                .foregroundStyle(lineup.formation == name ? .blue : .primary)
+                                .foregroundStyle(isActive ? .blue : .primary)
                         }
                     }
                 }

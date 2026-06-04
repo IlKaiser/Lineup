@@ -64,8 +64,11 @@ struct BenchStripView: View {
 
     private func moveToStarting(_ player: Player) {
         guard lineup.starters.count < 11 else { return }
-        lineup.substitutes.removeAll { $0.id == player.id }
-        let pos = PlayerPosition(player: player, normalizedX: 0.50, normalizedY: 0.50)
+        lineup.substitutes.removeAll { $0 === player }
+        let slots = Formations.positions(for: lineup.formation)
+        let idx = lineup.starters.count
+        let slot = idx < slots.count ? slots[idx] : FormationPosition(x: 0.50, y: 0.50)
+        let pos = PlayerPosition(player: player, normalizedX: slot.x, normalizedY: slot.y)
         lineup.starters.append(pos)
     }
 }
