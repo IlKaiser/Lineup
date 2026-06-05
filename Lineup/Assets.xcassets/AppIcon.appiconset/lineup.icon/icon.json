@@ -1,0 +1,29 @@
+{
+  "fill" : {
+    "automatic-gradient" : "srgb:0.05241,0.87482,0.34998,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "image-name" : "icon-watchos-1024x1024.png",
+          "name" : "icon-watchos-1024x1024"
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
